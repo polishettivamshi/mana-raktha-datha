@@ -1,0 +1,76 @@
+# Keeps the free Supabase project awake.
+#
+# Supabase pauses free projects after 7 days without activity. A blood donor
+# site must not go down during an emergency, so this runs a tiny read-only
+# query every 3 days. Free for public repositories.
+#
+# To turn it on:
+#   1. Push this repository to GitHub.
+#   2. Settings > Secrets and variables > Actions > New repository secret:
+#        SUPABASE_URL        = https://<ref>.supabase.co
+#        SUPABASE_ANON_KEY  = the anon public key (NOT service_role)
+#   3. Actions tab > Keep Supabase alive > Run workflow.
+#
+# NOTE: GitHub disables scheduled workflows in public repositories after
+# 60 days without a commit or other activity. As long as the site is being
+# updated this keeps running.
+
+name: Keep Supabase alive
+
+on:
+  schedule:
+    # Day of month 1, 4, 7, 10, 13, ... at 06:17 UTC (avoids the busy midnight slot).
+    - cron: '17 6 */3 * *'
+  workflow_dispatch: # also runnable by hand from the Actions tab
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keep-alive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    name: Query the database
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check secrets are configured
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::SUPABASE_URL and SUPABASE_ANON_KEY must be set in repository secrets."
+            exit 1
+          fi
+          # The anon key must never be the service_role key.
+          case "$SUPABASE_ANON_KEY" in
+            sb_secret_*) echo "::error::That is a secret key. Use the anon public key."; exit 1 ;;
+          esac
+
+      - name: Run a read-only query
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          # select=id with limit=1 asks PostgREST for the shape of the table
+          # without moving any rows. Row level security still applies, so this
+          # never exposes donor data to this log.
+          url="${SUPABASE_URL%/}/rest/v1/profiles?select=id&limit=1"
+          code=$(curl -sS -o /tmp/out.json -w '%{http_code}' \
+            --max-time 30 --retry 3 --retry-delay 5 \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            "$url") || { echo "::error::curl failed"; exit 1; }
+
+          echo "HTTP $code"
+          head -c 400 /tmp/out.json; echo
+
+          case "$code" in
+            200|204) echo "Project is awake." ;;
+            401|403) echo "::error::The anon key was rejected. Check the secret."; exit 1 ;;
+            404)     echo "::error::No profiles table. Has schema.sql been run?"; exit 1 ;;
+            *)       echo "::error::Unexpected response: HTTP $code"; exit 1 ;;
+          esac

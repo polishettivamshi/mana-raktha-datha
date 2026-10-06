@@ -1,0 +1,28 @@
+{
+  "name": "mana-raktha-datha",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Blood donor directory for Telangana and Andhra Pradesh",
+  "type": "module",
+  "scripts": {
+    "setup": "node scripts/build-env.mjs",
+    "dev": "node scripts/dev.mjs",
+    "dev:api": "node server/index.js",
+    "start": "node scripts/dev.mjs",
+    "check": "node scripts/check-supabase.mjs",
+    "db:push": "node scripts/db-push.mjs",
+    "email:check": "node scripts/check-smtp.mjs",
+    "test": "node scripts/lib/env.test.mjs && node scripts/lib/sql-lint.test.mjs && node scripts/lib/states.test.mjs && node server/app.test.mjs",
+    "build": "node scripts/build-env.mjs",
+    "predeploy": "node scripts/build-env.mjs",
+    "verify": "node scripts/verify-project.mjs",
+    "check:all": "npm run verify && npm test && npm run check"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "nodemailer": "^10.0.15"
+  }
+}

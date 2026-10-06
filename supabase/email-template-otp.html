@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!--
+  Mana Raktha Datha - one-time code email
+  =============================================================================
+  HOW TO USE
+    Supabase dashboard > Authentication > Emails > Email Templates
+    > open "Magic link" (labelled "Magic link or OTP" on newer projects)
+    > paste this whole file into the editor > Save.
+
+  The only part Supabase replaces at send time is {{ .Token }}: that becomes
+  the 6-digit code. Everything else is plain HTML.
+
+  WHY IT IS BUILT LIKE THIS
+    - Tables and inline styles, because Outlook does not understand flexbox,
+      grid, or <style> blocks.
+    - No web font is requested; a Georgia/Segoe stack stands in for the site's
+      Fraunces, so the mail never waits on a font host.
+    - The code sits in its own block with wide letter spacing, because people
+      read these on a cracked phone screen in a hospital corridor.
+    - Colours are the site theme: --red #B3121F, --deep #7A0A14,
+      --blush #FFF1F2, --ink #2A1215, --mute #7B5A5E, --line #F0CFD2.
+    - Dark mode is handled, so the code stays legible on a phone at night.
+  =============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="supported-color-schemes" content="light dark">
+<title>Your Mana Raktha Datha code</title>
+</head>
+
+<body style="margin:0;padding:0;background:#FFF1F2;-webkit-text-size-adjust:100%;">
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+  style="background:#FFF1F2;padding:24px 12px;">
+<tr>
+<td align="center" style="padding:0;">
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+    style="max-width:520px;background:#FFFFFF;border-radius:16px;overflow:hidden;
+           border:1px solid #F0CFD2;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+
+    <!-- Header strip in the brand red -->
+    <tr>
+      <td style="background:#B3121F;padding:22px 24px;">
+        <p style="margin:0;font-size:19px;font-weight:700;color:#FFFFFF;
+                  font-family:Georgia,'Times New Roman',serif;letter-spacing:.2px;">
+          Mana Raktha Datha
+        </p>
+        <p style="margin:4px 0 0;font-size:13px;color:#FFD9DD;letter-spacing:.3px;">
+          &#2344;&#2344; &#2352;&#2344;&#2362;&#2342;&#2366;&#2340;&#2367;
+        </p>
+      </td>
+    </tr>
+
+    <!-- Body -->
+    <tr>
+      <td style="padding:28px 24px 8px;color:#2A1215;font-size:16px;line-height:1.6;">
+        <p style="margin:0 0 6px;font-size:20px;font-weight:700;color:#2A1215;
+                  font-family:Georgia,'Times New Roman',serif;">
+          Your verification code
+        </p>
+        <p style="margin:0 0 22px;font-size:15px;color:#7B5A5E;">
+          Use this code to finish signing in. It works once.
+        </p>
+
+        <!-- The code. Solid fill so it stays readable in dark mode. -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td align="center" style="background:#FFF1F2;border:2px solid #B3121F;
+                                     border-radius:14px;padding:22px 12px;">
+            <div style="font-size:40px;font-weight:700;letter-spacing:14px;
+                        line-height:1;color:#B3121F;
+                        font-family:'Courier New',Consolas,monospace;">
+              {{ .Token }}
+            </div>
+          </td>
+        </tr>
+        </table>
+
+        <p style="margin:16px 0 0;font-size:14px;color:#7B5A5E;text-align:center;">
+          Valid for <strong style="color:#2A1215;">10 minutes</strong>.
+        </p>
+      </td>
+    </tr>
+
+    <!-- SAFETY-PART-2 -->
+<!-- Safety note -->
+    <tr>
+      <td style="padding:18px 24px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+          style="background:#FFF1F2;border-radius:10px;">
+        <tr>
+          <td style="padding:14px 16px;font-size:14px;color:#2A1215;line-height:1.55;">
+            <strong>Never share this code.</strong> Mana Raktha Datha will never
+            ask you for it. If someone does, close this email.
+          </td>
+        </tr>
+        </table>
+      </td>
+    </tr>
+
+    <!-- Did not get it -->
+    <tr>
+      <td style="padding:20px 24px 0;font-size:14px;color:#7B5A5E;line-height:1.6;">
+        <p style="margin:0 0 6px;">You can request a new code on the sign-in
+        page after 60 seconds. Codes sometimes land in the spam folder.</p>
+        <p style="margin:0;">
+          <a href="{{ .SiteURL }}"
+             style="color:#B3121F;font-weight:600;text-decoration:underline;">
+            Back to Mana Raktha Datha
+          </a>
+        </p>
+      </td>
+    </tr>
+
+    <!-- Footer -->
+    <tr>
+      <td style="padding:22px 24px 26px;border-top:1px solid #F0CFD2;">
+        <p style="margin:0 0 6px;font-size:13px;color:#7B5A5E;line-height:1.55;">
+          <strong style="color:#2A1215;">Mana Raktha Datha</strong> connects
+          people who need blood with neighbours who are willing to donate.
+          We are not a blood bank and we do not store blood.
+        </p>
+        <p style="margin:0;font-size:12px;color:#7B5A5E;line-height:1.55;">
+          Need help? Reply to this email or use the Contact page on the site.<br>
+          In a medical emergency call <strong style="color:#B3121F;">108</strong>
+          (ambulance) or <strong style="color:#B3121F;">112</strong> first.
+        </p>
+      </td>
+    </tr>
+
+  </table>
+
+  <p style="max-width:520px;margin:16px auto 0;font-size:12px;color:#7B5A5E;
+            font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.5;">
+    You are receiving this because someone used this address on
+    <a href="{{ .SiteURL }}" style="color:#7B5A5E;">Mana Raktha Datha</a>.
+    Blood is never bought or sold on our site.
+  </p>
+
+</td>
+</tr>
+</table>
+
+</body>
+</html>
+
