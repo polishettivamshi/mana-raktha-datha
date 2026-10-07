@@ -42,6 +42,7 @@ const REQUIRED = [
   "supabase/schema.sql",
   "supabase/email-template-otp.html",
   "scripts/check-smtp.mjs",
+  "scripts/push-mail-config.mjs",
   "scripts/db-push.mjs",
   "scripts/lib/sql-lint.mjs",
   "docs/SETUP.md",
@@ -237,6 +238,7 @@ for (const s of [
   "test",
   "db:push",
   "email:check",
+  "email:push",
   "dev:api",
 ]) {
   if (!pkg.scripts?.[s]) bad(`package.json has no "${s}" script`);

@@ -30,9 +30,24 @@ Three things to know about Gmail as the mailer:
 - **`@gmail.com` only.** With your own domain later you would need a
   different mailer — see the last section.
 
-## 2. Paste them into Supabase
+## 2. Apply them to Supabase
 
-Supabase dashboard > **Authentication > Emails > SMTP Settings**:
+Two ways — the terminal applies exactly what is in `.env`, so the values
+Supabase uses cannot drift from the ones `npm run email:check` tested.
+
+**Terminal (recommended):**
+
+```bash
+npm run email:push
+```
+
+It needs `SUPABASE_ACCESS_TOKEN` (the same token `npm run db:push` uses) and
+writes **sections 2 and 3 together**: Custom SMTP on, host/port, user,
+password (spaces stripped), sender, `60s` frequency, confirmations off,
+600-second expiry, 6 digits, and the `{{ .Token }}` template from section 3.
+`npm run email:push -- --dry` prints the same without touching anything.
+
+**By hand** — Supabase dashboard > **Authentication > Emails > SMTP Settings**:
 
 | Supabase field | Value |
 |---|---|
@@ -64,6 +79,8 @@ uses the site colours (#B3121F red, #FFF1F2 blush), states that the code is
 valid for 10 minutes, and is built with tables and inline styles so it renders
 correctly in Outlook and Gmail.
 
+`npm run email:push` uploads this file for you. By hand:
+
 1. Go to **Authentication > Emails > Email Templates**.
 2. Open **"Magic link"** (in newer projects it is labelled
    *"Magic link or OTP"*).
@@ -80,7 +97,7 @@ change is needed on this side.
 
 ## 3a. Test the credentials first
 
-Before pasting anything into Supabase, confirm they work:
+Before applying anything to Supabase, confirm they work:
 
 ```bash
 npm run email:check
@@ -91,8 +108,8 @@ to authenticate with your App Password. It sends no email. If it prints the
 settings to copy, they are correct. It deliberately refuses to transmit the
 password if the server does not offer STARTTLS.
 
-Once that passes, paste the printed values into **Authentication > Emails >
-SMTP Settings** — the same table as in section 2.
+Once that passes, run `npm run email:push` (section 2) — or paste the printed
+values into **Authentication > Emails > SMTP Settings** by hand.
 
 The values live in `.env` as `SMTP_*`, which is what `npm run email:check`
 reads; `.env.example` holds the ready-made Gmail block. `.env` itself is

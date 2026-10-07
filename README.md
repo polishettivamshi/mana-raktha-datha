@@ -70,6 +70,7 @@ Full walkthrough: [`docs/SETUP.md`](docs/SETUP.md).
 | `npm run db:push` | Applies `supabase/schema.sql` to Supabase from the terminal |
 | `npm run db:push -- --dry` | Lists the statements without touching the database |
 | `npm run email:check` | Tests the Gmail SMTP login without sending an email |
+| `npm run email:push` | Applies Gmail SMTP + the OTP email template to Supabase |
 | `npm test` | Unit tests for the credential helpers |
 | `npm run check:all` | verify + test + check in one go |
 | `npm run build` | What Cloudflare Pages runs: regenerates `js/env.js` |

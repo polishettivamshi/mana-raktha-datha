@@ -298,6 +298,10 @@ if (handshake.ok) {
   console.log(
     "paste supabase/email-template-otp.html over the current contents, and save.\n",
   );
+  console.log("Or skip the dashboard entirely and apply everything at once:");
+  console.log("  npm run email:push");
+  console.log("");
+
 } else {
   bad(handshake.message);
   console.log("\nRESULT: the credentials did not work.\n");

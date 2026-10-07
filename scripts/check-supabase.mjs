@@ -169,45 +169,39 @@ for (const fn of ["search_donors", "reveal_phone"]) {
 
 // 6. Email delivery ----------------------------------------------------------
 console.log("\n6. Email codes");
-// The Auth settings endpoint reports the mailer configuration. Without custom
-// SMTP Supabase sends 2 emails an hour to team members only, so the site
-// cannot work publicly - this is the single most important thing to check.
+// What the public settings do NOT report is the mailer itself: no smtp
+// block, no OTP length (checked against api.supabase.com). So this reads the
+// confirm-email flag here, then lets the send attempt below decide whether
+// custom SMTP actually works - the one thing a visitor can feel. Host,
+// template and OTP rules are verified by `npm run email:push`.
 try {
   const r = await fetch(`${url}/auth/v1/settings`, {
     headers: { apikey: key },
   });
   const s = r.ok ? await r.json().catch(() => ({})) : {};
-  if (s.smtp) {
-    ok("Custom SMTP is configured");
-    if (s.mailer_autoconfirm === false)
-      warn(
-        "Confirm email is ON. Every new user needs a second click. Turn it off when using OTP codes.",
-      );
-    else ok("Confirm email is OFF (correct for OTP sign-in)");
-    if (s.mailer_otp_length) ok(`OTP length is ${s.mailer_otp_length} digits`);
-    else if (s.mailer_otp_length !== 6)
-      warn(`OTP length is ${s.mailer_otp_length}; the site expects 6 digits.`);
-    if (s.mailer_otp_expiry)
-      ok(`Code expires after ${s.mailer_otp_expiry} seconds`);
-  } else {
-    bad("NO custom SMTP configured.");
-    warn("Supabase can only send 2 emails per hour, to team members only.");
-    warn("Set up Gmail SMTP: docs/EMAIL-OTP.md, then re-run this check.");
-  }
+  if (s.mailer_autoconfirm === true)
+    ok("Confirm email is OFF (correct for OTP sign-in)");
+  else if (s.mailer_autoconfirm === false)
+    warn(
+      "Confirm email is ON. Every new user needs a second click. Turn it off when using OTP codes.",
+    );
 } catch (e) {
   warn(`Could not read the mailer settings \u2014 ${e.message}`);
 }
 
-// A real send attempt to a throwaway address, to prove the path end to end.
+// A real send attempt to a fixed throwaway address, to prove the path end
+// to end. create_user is omitted on purpose: newer GoTrue rejects
+// create_user:false with a misleading otp_disabled error before ever
+// touching the mailer. The address is fixed so the 60-second limit applies
+// to one row instead of minting a new one every run.
 try {
-  const probe = `probe-${Date.now()}@example.invalid`;
   const r = await fetch(`${url}/auth/v1/otp`, {
     method: "POST",
     headers: H,
-    body: JSON.stringify({ email: probe, create_user: false }),
+    body: JSON.stringify({ email: "probe@example.invalid" }),
   });
   if (r.ok) {
-    ok("Code-send endpoint accepted the request");
+    ok("Custom SMTP accepted a code send (the public signal that it works)");
     const env = loadEnvFile();
     if (env.ADMIN_EMAIL)
       warn(
@@ -221,9 +215,17 @@ try {
     warn("Rate limited (429). Wait a minute and run this again.");
   } else {
     const body = (await r.text().catch(() => "")).slice(0, 200);
-    warn(
-      `Send endpoint returned HTTP ${r.status}. ${/not authorized/i.test(body) ? "Supabase will only send to team members until custom SMTP is set." : ""}`,
-    );
+    if (r.status === 500 || /smtp|sending|connection|tls/i.test(body)) {
+      bad(
+        "The send path is wired but the mailer could not send - usually a wrong or revoked Gmail App Password.",
+      );
+      warn("npm run email:check tests the Gmail login directly.");
+    } else if (/not authorized/i.test(body)) {
+      bad("NO custom SMTP - Supabase refuses every address outside the team.");
+      warn("Apply the Gmail settings: npm run email:push (docs/EMAIL-OTP.md).");
+    } else {
+      warn(`Send endpoint returned HTTP ${r.status}: ${body}`);
+    }
   }
 } catch (e) {
   warn(`Could not reach the send endpoint \u2014 ${e.message}`);

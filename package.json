@@ -12,6 +12,7 @@
     "check": "node scripts/check-supabase.mjs",
     "db:push": "node scripts/db-push.mjs",
     "email:check": "node scripts/check-smtp.mjs",
+    "email:push": "node scripts/push-mail-config.mjs",
     "test": "node scripts/lib/env.test.mjs && node scripts/lib/sql-lint.test.mjs && node scripts/lib/states.test.mjs && node server/app.test.mjs",
     "build": "node scripts/build-env.mjs",
     "predeploy": "node scripts/build-env.mjs",

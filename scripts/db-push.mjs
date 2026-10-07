@@ -257,7 +257,8 @@ console.log(
     (env.ADMIN_EMAIL || "you@example.com").trim() +
     "');",
 );
-console.log("  3. docs/EMAIL-OTP.md   set up Gmail SMTP so codes send\n");
+console.log("  3. npm run email:push  apply Gmail SMTP + the OTP email template\n");
+console.log("     (docs/EMAIL-OTP.md explains the App Password)\n");
 
 ok("balanced quotes, triggers and policies all resolve");
 
